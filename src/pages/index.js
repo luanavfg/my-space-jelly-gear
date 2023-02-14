@@ -9,7 +9,10 @@ import products from '@data/products';
 
 import styles from '@styles/Page.module.scss'
 
-export default function Home() {
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
+
+export default function Home({ home }) {
+  const { heroTitle, heroText, heroLink, heroBackground } = home
   return (
     <Layout>
       <Head>
@@ -21,13 +24,13 @@ export default function Home() {
         <h1 className="sr-only">Space Jelly Gear</h1>
 
         <div className={styles.hero}>
-          <Link href="#">
+          <Link href={heroLink}>
             <a>
               <div className={styles.heroContent}>
-                <h2>Prepare for liftoff.</h2>
-                <p>Apparel that&apos;s out of this world!</p>
+                <h2>{heroTitle}</h2>
+                <p>{heroText}</p>
               </div>
-              <img className={styles.heroImage} src="/images/space-jelly-gear-banner.jpg" alt="" />
+              <img className={styles.heroImage} src={heroBackground.url} width={heroBackground.width} heigth={heroBackground.height} alt="" />
             </a>
           </Link>
         </div>
@@ -63,4 +66,37 @@ export default function Home() {
       </Container>
     </Layout>
   )
+}
+
+export async function getStaticProps() {
+  const client = new ApolloClient({
+    uri: 'https://api-sa-east-1.hygraph.com/v2/cle4724kv0alm01us2m2thvt1/master',
+    cache: new InMemoryCache(),
+  });
+
+  const data = await client.query({
+    query: gql`
+      query PageHome {
+        page(where: {slug: "home"}) {
+          id
+          heroLink
+          heroText
+          heroTitle
+          name
+          slug
+          heroBackground {
+            width
+            url
+            height
+          }
+        }
+      }
+    `
+  })
+  const home = data.data.page
+  return {
+    props: {
+      home
+    }
+  }
 }
