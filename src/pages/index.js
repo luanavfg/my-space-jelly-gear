@@ -13,7 +13,6 @@ import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 
 export default function Home({ home, products }) {
   const { heroTitle, heroText, heroLink, heroBackground } = home
-  console.log('products', products)
   return (
     <Layout>
       <Head>
