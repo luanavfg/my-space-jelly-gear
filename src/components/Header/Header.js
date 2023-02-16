@@ -5,7 +5,10 @@ import Container from '@components/Container';
 
 import styles from './Header.module.scss';
 
+import { useSnipcart } from 'use-snipcart';
+
 const Header = () => {
+  const { cart = {} } = useSnipcart();
   return (
     <header className={styles.header}>
       <Container className={styles.headerContainer}>
@@ -32,10 +35,10 @@ const Header = () => {
           </li>
         </ul>
         <p className={styles.headerCart}>
-          <button>
+          <button class="snipcart-checkout">
             <FaShoppingCart />
             <span>
-              $0.00
+              ${cart.subtotal?.toFixed(2)}
             </span>
           </button>
         </p>
