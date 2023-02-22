@@ -21,3 +21,5 @@ https://nextjs.org/docs/advanced-features/custom-document
 https://docs.snipcart.com/v3/setup/installation
 
 https://github.com/colbyfayock/use-snipcart
+
+https://leafletjs.com/
