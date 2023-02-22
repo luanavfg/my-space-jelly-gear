@@ -3,7 +3,8 @@ import Link from 'next/link';
 import Layout from '@components/Layout';
 import Container from '@components/Container';
 import Button from '@components/Button';
-import styles from '@styles/Page.module.scss'
+import styles from '@styles/Page.module.scss';
+import { buildImage } from '@lib/cloudinary';
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 
@@ -26,7 +27,7 @@ export default function Home({ home, products }) {
                 <h2>{heroTitle}</h2>
                 <p>{heroText}</p>
               </div>
-              <img className={styles.heroImage} src={heroBackground.url} width={heroBackground.width} heigth={heroBackground.height} alt="" />
+              <img className={styles.heroImage} src={buildImage(heroBackground.public_id).toURL()} width={heroBackground.width} heigth={heroBackground.height} alt="" />
             </a>
           </Link>
         </div>
@@ -35,12 +36,13 @@ export default function Home({ home, products }) {
 
         <ul className={styles.products}>
           {products.map(product => {
+            const imageUrl = buildImage(product.image.public_id).resize('w_900,h_900').toURL();
             return (
               <li key={product.slug}>
                 <Link href={`/products/${product.slug}`}>
                   <a>
                     <div className={styles.productImage}>
-                      <img width={product.image.width} height={product.image.height} src={product.image.url} alt="" />
+                      <img width={product.image.width} height={product.image.height} src={imageUrl} alt="" />
                     </div>
                     <h3 className={styles.productTitle}>
                       { product.name }

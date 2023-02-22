@@ -1,12 +1,11 @@
 import Head from 'next/head'
-
 import Layout from '@components/Layout';
 import Header from '@components/Header';
 import Container from '@components/Container';
 import Button from '@components/Button';
-
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import styles from '@styles/Product.module.scss'
+import { buildImage } from '@lib/cloudinary';
 
 export default function Product({product}) {
   return (
@@ -19,7 +18,7 @@ export default function Product({product}) {
       <Container>
         <div className={styles.productWrapper}>
           <div className={styles.productImage}>
-            <img width={product.image.width} height={product.image.height} src={product.image.url} alt="" />
+            <img width={product.image.width} height={product.image.height} src={buildImage(product.image.public_id).toURL()} alt="" />
           </div>
           <div className={styles.productContent}>
             <h1>{product.name}</h1>
