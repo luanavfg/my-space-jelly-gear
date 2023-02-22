@@ -1,6 +1,5 @@
 import Head from 'next/head'
 import Link from 'next/link';
-
 import Layout from '@components/Layout';
 import Container from '@components/Container';
 import Button from '@components/Button';
@@ -72,7 +71,7 @@ export default function Home({ home, products }) {
   )
 }
 
-export async function getStaticProps() {
+export async function getStaticProps({ locale }) {
   const client = new ApolloClient({
     uri: 'https://api-sa-east-1.hygraph.com/v2/cle4724kv0alm01us2m2thvt1/master',
     cache: new InMemoryCache(),
@@ -80,7 +79,7 @@ export async function getStaticProps() {
 
   const data = await client.query({
     query: gql`
-      query PageHome {
+      query PageHome($locale: Locale!) {
         page(where: {slug: "home"}) {
           id
           heroLink
@@ -89,6 +88,11 @@ export async function getStaticProps() {
           name
           slug
           heroBackground
+          localizations(locales: [$locale]) {
+            heroText
+            heroTitle
+            locale
+          }
         }
         products(where: {categories_some: {slug: "featured"}}) {
           id
@@ -99,10 +103,20 @@ export async function getStaticProps() {
           id
         }
       }
-   `
+   `,
+    variables: {
+      locale
+    }
   })
 
-  const home = data.data.page
+  let home = data.data.page
+
+  if (home.localizations.length > 0) {
+    home = {
+      ...home,
+      ...home.localizations[0]
+    }
+  }
   const products = data.data.products
 
   return {

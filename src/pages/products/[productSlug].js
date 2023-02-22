@@ -48,7 +48,7 @@ export default function Product({product}) {
   )
 }
 
-export async function getStaticProps({params}) {
+export async function getStaticProps({params, locale}) {
   const client = new ApolloClient({
     uri: 'https://api-sa-east-1.hygraph.com/v2/cle4724kv0alm01us2m2thvt1/master',
     cache: new InMemoryCache(),
@@ -56,7 +56,7 @@ export async function getStaticProps({params}) {
 
   const data = await client.query({
     query: gql`
-      query PageProduct($slug: String) {
+      query PageProduct($slug: String, $locale: Locale!) {
         product(where: {slug: $slug}) {
           id
           name
@@ -66,21 +66,35 @@ export async function getStaticProps({params}) {
             html
           }
           slug
+          localizations(locales: [$locale]) {
+            description {
+              html
+            }
+            locale
+          }
         }
       }
    `,
    variables: {
-    slug: params.productSlug
+    slug: params.productSlug,
+    locale
    }
   })
-  const product = data.data.product;
+  let product = data.data.product;
+
+  if (product.localizations.length > 0) {
+    product = {
+      ...product,
+      ...product.localizations[0]
+    }
+  }
   return {
     props: {
       product
     }
   }
 }
-export async function getStaticPaths() {
+export async function getStaticPaths({ locales }) {
   const client = new ApolloClient({
     uri: 'https://api-sa-east-1.hygraph.com/v2/cle4724kv0alm01us2m2thvt1/master',
     cache: new InMemoryCache(),
@@ -108,7 +122,17 @@ export async function getStaticPaths() {
   })
 
   return {
-    paths,
+    paths: [
+      ...paths,
+      ...paths.flatMap(path => {
+        return locales.map(locale => {
+          return {
+            ...path,
+            locale
+          }
+        })
+      })
+    ],
     fallback: false
   }
 }
